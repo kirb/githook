@@ -1,9 +1,9 @@
-const TWEET_MAX_LENGTH = 140;
+const TWEET_MAX_LENGTH = 280;
 const TWEET_LINK_LENGTH = 23;
 
-const http = require("http"),
-	https = require("https"),
+const request = require("request-promise-native"),
 	querystring = require("querystring"),
+	URL = require("url").URL,
 	Twitter = require("twitter");
 
 const twitter = new Twitter({
@@ -41,7 +41,7 @@ gith().on("tag:add", (payload) => {
 	doTweet(payload.repo, payload.pusher, `Released ${payload.tag}:`, `${payload.original.repository.html_url}/releases/tag/${payload.tag}`);
 });
 
-function doTweet(repo, pusher, message, url) {
+async function doTweet(repo, pusher, message, url) {
 	var tweet = `[${repo}] ${pusher}: ${message}`;
 
 	if (tweet.length > TWEET_MAX_LENGTH - TWEET_LINK_LENGTH - 1) {
@@ -50,16 +50,16 @@ function doTweet(repo, pusher, message, url) {
 
 	tweet += " " + encodeURI(url);
 
-	twitter.post("statuses/update", {
-		status: tweet
-	}).then((tweet) => {
-		// yay?
-	}).catch((error) => {
+	try {
+		await twitter.post("statuses/update", {
+			status: tweet
+		});
+	} catch (error) {
 		console.warn("[!] tweet error:", error);
-	});
+	}
 }
 
-function doSlack(repo, pusher, message, url, commits) {
+async function doSlack(repo, pusher, message, url, commits) {
 	var fields = [];
 
 	commits.forEach(function(commit) {
@@ -95,30 +95,16 @@ function doSlack(repo, pusher, message, url, commits) {
 		]
 	};
 
-	var data = querystring.stringify({
-		payload: JSON.stringify(json)
-	});
+	try {
+		let url = new URL("https://hooks.slack.com/");
+		url.path = process.env.SLACK_INTEGRATION_PATH;
 
-	var req = https.request({
-		hostname: "hooks.slack.com",
-		port: 443,
-		path: process.env.SLACK_INTEGRATION_PATH,
-		method: "POST",
-		headers: {
-			"Content-Type": "application/x-www-form-urlencoded",
-			"Content-Length": data.length
-		}
-	}, (res) => {
-		if (res.statusCode != 200) {
-			console.warn("[!] send failed:", res.statusCode, res.headers);
-			return;
-		}
-	});
-
-	req.on("error", (error) => {
+		let res = await request.post(url.toString(), {
+			form: {
+				payload: JSON.stringify(json)
+			}
+		});
+	} catch (error) {
 		console.warn("[!] send error:", error);
-	});
-
-	req.write(data);
-	req.end();
+	}
 }
