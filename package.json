@@ -1,0 +1,30 @@
+{
+  "name": "githook",
+  "version": "1.0.0",
+  "description": "Twitter and Slack notification bot for GitHub events",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kirb/githook.git"
+  },
+  "keywords": [
+    "twitter",
+    "authentication",
+    "oauth",
+    "auth",
+    "login"
+  ],
+  "author": "Adam Demasi",
+  "contributors": [
+    "Adam Demasi"
+  ],
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/kirb/githook/issues"
+  },
+  "homepage": "https://github.com/kirb/githook",
+  "dependencies": {
+    "gith": "git://github.com/amaline/gith",
+    "twitter": "^1.7.0"
+  }
+}
