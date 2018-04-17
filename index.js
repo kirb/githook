@@ -6,17 +6,17 @@ const request = require("request-promise-native"),
 	URL = require("url").URL,
 	Twitter = require("twitter");
 
-const twitter = new Twitter({
+let twitter = new Twitter({
 	consumer_key: process.env.TWITTER_CONSUMER_KEY,
 	consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
 	access_token_key: process.env.TWITTER_ACCESS_TOKEN_KEY,
 	access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
 });
 
-var gith = require("gith").create(6990);
+let gith = require("gith").create(6990);
 
 gith().on("file:all", (payload) => {
-	var commits = payload.original.commits,
+	let commits = payload.original.commits,
 		headCommit = payload.original.head_commit,
 		message = "", url = "";
 
@@ -27,8 +27,6 @@ gith().on("file:all", (payload) => {
 		message = headCommit.message;
 		url = headCommit.url;
 	}
-
-	var private = false;
 
 	if (!payload.original.repository.private) {
 		doTweet(payload.original.repository.name, payload.pusher, message, url);
@@ -42,7 +40,7 @@ gith().on("tag:add", (payload) => {
 });
 
 async function doTweet(repo, pusher, message, url) {
-	var tweet = `[${repo}] ${pusher}: ${message}`;
+	let tweet = `[${repo}] ${pusher}: ${message}`;
 
 	if (tweet.length > TWEET_MAX_LENGTH - TWEET_LINK_LENGTH - 1) {
 		tweet = tweet.substring(0, TWEET_MAX_LENGTH - TWEET_LINK_LENGTH - 2) + "\u2026";
@@ -60,12 +58,12 @@ async function doTweet(repo, pusher, message, url) {
 }
 
 async function doSlack(repo, pusher, message, url, commits) {
-	var fields = [];
+	let fields = [];
 
 	commits.forEach(function(commit) {
-		var sha = commit.id.substring(0, 7);
+		let sha = commit.id.substring(0, 7);
 
-		var data = {
+		let data = {
 			value: `<${commit.url}|${sha}> ${commit.author.username}: ${commit.message}`
 		};
 
@@ -73,7 +71,7 @@ async function doSlack(repo, pusher, message, url, commits) {
 	});
 
 	if (fields.length > 20) {
-		var length = fields.length - 20;
+		let length = fields.length - 20;
 
 		fields = fields.splice(0, 20);
 		fields.push({
@@ -81,7 +79,7 @@ async function doSlack(repo, pusher, message, url, commits) {
 		});
 	}
 
-	var json = {
+	let json = {
 		channel: `#${process.env.SLACK_CHANNEL}`,
 		username: process.env.SLACK_USERNAME,
 		icon_emoji: process.env.SLACK_ICON_EMOJI,
