@@ -1,6 +1,6 @@
 {
   "name": "githook",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Twitter and Slack notification bot for GitHub events",
   "main": "index.js",
   "repository": {
@@ -25,8 +25,8 @@
   "homepage": "https://github.com/kirb/githook",
   "dependencies": {
     "gith": "git://github.com/amaline/gith",
-    "request": "^2.85.0",
-    "request-promise-native": "^1.0.5",
-    "twitter": "^1.7.0"
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.7",
+    "twitter": "^1.7.1"
   }
 }
